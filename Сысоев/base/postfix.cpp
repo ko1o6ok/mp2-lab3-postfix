@@ -5,7 +5,10 @@ string TPostfix::ToPostfix()
 {
     stack<char> my_stack;
   postfix = string("");
-    for (char &symbol: infix) {
+  bool PREV_WAS_A_NUMBER = false;
+  string add_num;
+    for (int i = 0;i<infix.length();i++) {
+        char symbol = infix[i];
         switch (symbol) {
             case '0':
             case '1':
@@ -18,18 +21,44 @@ string TPostfix::ToPostfix()
             case '8':
             case '9':
             {
-                postfix.push_back(symbol);
+                add_num.push_back(symbol);
+                PREV_WAS_A_NUMBER = true;
+                if(i==infix.length()-1){
+                    for (char& c:add_num) {
+                        postfix.push_back(c);
+                    }
+                    postfix.push_back(' ');
+                }
+                //postfix.push_back(symbol);
                 break;
             }
             case '(':
             {
+                if(PREV_WAS_A_NUMBER){
+                    for (char& c:add_num) {
+                        postfix.push_back(c);
+                    }
+                    postfix.push_back(' ');
+                    PREV_WAS_A_NUMBER = false;
+                    add_num = "";
+                }
+
                 my_stack.push(symbol);
                 break;
             }
             case ')':
             {
+                if(PREV_WAS_A_NUMBER){
+                    for (char& c:add_num) {
+                        postfix.push_back(c);
+                    }
+                    postfix.push_back(' ');
+                    PREV_WAS_A_NUMBER = false;
+                    add_num = "";
+                }
                 while(!(my_stack.empty())&&(my_stack.top() != '(')){
                     postfix.push_back(my_stack.top());
+                    //postfix.push_back(' ');
                     my_stack.pop();
                 }
                 my_stack.pop();
@@ -39,9 +68,18 @@ string TPostfix::ToPostfix()
             case '-':
             case '*':
             case '/':{
+                if(PREV_WAS_A_NUMBER){
+                    for (char& c:add_num) {
+                        postfix.push_back(c);
+                    }
+                    postfix.push_back(' ');
+                    PREV_WAS_A_NUMBER = false;
+                    add_num = "";
+                }
                 if(!my_stack.empty())
                     while (!my_stack.empty()&&(Priority(my_stack.top()) >= Priority(symbol))) {
                         postfix.push_back(my_stack.top());
+
                         my_stack.pop();
                     }
                 my_stack.push(symbol);break;}
@@ -56,7 +94,7 @@ string TPostfix::ToPostfix()
         unsigned long long l =  postfix.length();
         char c = postfix[l-1];
         int s = c - '0';
-        if((c==postfix[l-3])&&((s>=10)||(s<0)))
+        if((c==postfix[l-4])&&((s>=10)||(s<0)))
             throw invalid_argument("Doubles are not allowed!");
     }
     return postfix;
@@ -66,8 +104,14 @@ double TPostfix::Calculate()
 {
   string s = ToPostfix();
   stack<double> my_stack;
+  int n_add = 0;
     for (char c:s) {
         switch (c) {
+            case ' ':{
+                my_stack.push(n_add);
+                n_add = 0;
+                break;
+            }
             case '0':
             case '1':
             case '2':
@@ -79,7 +123,8 @@ double TPostfix::Calculate()
             case '8':
             case '9':{
                 int ic = c-'0';
-                my_stack.push(ic);
+                n_add *= 10;
+                n_add += ic;
                 break;
             }
             case '+':{
