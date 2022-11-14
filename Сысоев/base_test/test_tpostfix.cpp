@@ -1,5 +1,5 @@
 #include "postfix.h"
-#include <gtest.h>
+#include <gtest/gtest.h>
 
 TEST(TPostfix, can_create_postfix)
 {
@@ -7,7 +7,7 @@ TEST(TPostfix, can_create_postfix)
 }
 TEST(TPostfix, to_inverse_polish_correctly){
     TPostfix a("3+5/(1-2)");
-    ASSERT_EQ(a.ToPostfix(),"3512-/+");
+    ASSERT_EQ(a.ToPostfix(),"3 5 1 2 -/+");
 }
 TEST(TPostfix,can_calculate_correctly){
     TPostfix a("4+9*(3-1)");
@@ -45,7 +45,7 @@ TEST(TPostfix,postfix_throw_double){
 TEST(TPostfix,postfix_correct_length){
     TPostfix a("(3+6)*9+3/(2-5)");
 
-    ASSERT_EQ(a.ToPostfix().length(),11);
+    ASSERT_EQ(a.ToPostfix().length(),17);
 }
 
 TEST(TPostfix,cannot_divide_by_zero){
@@ -70,4 +70,3 @@ TEST(TPostfix,distributive_law_works){
     TPostfix b("3/7-6/7");
     ASSERT_EQ(a.Calculate(),b.Calculate());
 }
-
